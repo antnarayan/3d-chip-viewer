@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Node / Vite
+node_modules/
+dist/
+.vite/
+
+# LibreLane flow output (large; copy final GDS/DEF into designs/ by hand)
+runs/
+
+# Generated meshes (rebuild with the converter)
+*.glb
+!viewer/public/samples/*.glb
+
+# Editors
+.vscode/
+.idea/

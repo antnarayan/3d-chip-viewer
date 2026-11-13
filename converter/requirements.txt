@@ -1,0 +1,2 @@
+# Reference checks: per-layer polygon counts vs. KLayout (headless, no GUI)
+klayout==0.30.13

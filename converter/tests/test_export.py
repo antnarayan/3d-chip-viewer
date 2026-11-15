@@ -70,6 +70,12 @@ def test_small_layout_round_trip(small_gds: Path, tmp_path: Path):
     assert m.volume == pytest.approx(7 * (0.36 - 0.001), rel=1e-5)
 
 
+def test_convert_creates_missing_output_folder(small_gds: Path, tmp_path: Path):
+    out = tmp_path / "new" / "folder" / "small.glb"
+    convert(small_gds, LAYERMAP, out)
+    assert out.is_file()
+
+
 @needs_spm
 def test_spm_converts_to_16_layer_glb(tmp_path: Path):
     out = tmp_path / "spm.glb"

@@ -147,10 +147,12 @@ kbd { font: 11px ui-monospace, monospace; color: var(--muted); border: 1px solid
 
 #scalebar {
   position: fixed;
-  left: 16px;
+  left: 50%; /* centred: the panel can reach the bottom-left corner on short windows */
   bottom: 16px;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3px;
   color: var(--muted);
   font-size: 11px;

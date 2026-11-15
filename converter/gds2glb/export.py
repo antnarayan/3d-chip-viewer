@@ -67,7 +67,9 @@ def export_glb(meshes: dict[Layer, trimesh.Trimesh], path: str | Path, extras: d
         scene.add_geometry(m, geom_name=layer.name, node_name=layer.name)
 
     data = scene.export(file_type="glb", include_normals=False)
-    Path(path).write_bytes(data)
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)  # e.g. viewer/public/models/ on a fresh clone
+    path.write_bytes(data)
     return len(data)
 
 

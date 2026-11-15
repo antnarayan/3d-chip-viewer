@@ -7,7 +7,7 @@ import { niceFloor, settle } from "./motion.js";
 import { createRuler } from "./ruler.js";
 import { ISO_DIR, PERSPECTIVE_DIR, createView } from "./view.js";
 
-const MODEL_URL = "/models/spm.glb";
+const MODEL_URL = `${import.meta.env.BASE_URL}models/spm.glb`; // BASE_URL is "/" locally, "/<repo>/" on Pages
 const EXPLODE_HEIGHT = 0.35; // fully apart, the top layer rises this fraction of the die width
 const DIM = 0.75; // how far unselected layers fade toward the background
 const CLICK_SLOP = 5; // px a press may move and still count as a click, not an orbit drag

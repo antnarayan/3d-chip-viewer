@@ -69,17 +69,51 @@ kbd { font: 11px ui-monospace, monospace; color: var(--muted); border: 1px solid
 .slider input { width: 100%; }
 
 #layers { list-style: none; margin: 0; padding: 0; }
-#layers li label {
+#layers li {
   display: grid;
-  grid-template-columns: 16px 12px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
+  padding: 1px 4px;
+  margin: 0 -4px;
+  border-radius: 4px;
+}
+#layers li.on { background: #2e2f36; }
+#layers label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+#layers .name {
+  font: inherit;
+  color: var(--text);
+  background: none;
+  border: 0;
   padding: 3px 0;
+  text-align: left;
   cursor: pointer;
 }
-#layers .swatch { width: 12px; height: 12px; border-radius: 2px; border: 1px solid rgba(255, 255, 255, 0.25); }
+#layers .name:hover { text-decoration: underline; text-decoration-color: var(--muted); }
+#layers .name:focus-visible { outline: 1px solid var(--muted); outline-offset: 2px; }
+.swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid rgba(255, 255, 255, 0.25); }
 #layers .z { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 11px; }
+.hint { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+.hint kbd { margin-right: 2px; }
+
+#card {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 230px;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 12px;
+}
+#card[hidden] { display: none; }
+#card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+#card dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 0; }
+#card dt { color: var(--muted); }
+#card dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
 
 @media (max-width: 600px) {
   #panel { width: auto; right: 16px; max-height: 45%; }
+  #card { left: 16px; width: auto; }
 }

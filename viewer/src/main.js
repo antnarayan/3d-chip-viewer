@@ -2,9 +2,13 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { createExplode } from "./explode.js";
+import { describeLayer, stepSelection } from "./identify.js";
 
 const MODEL_URL = "/models/spm.glb";
 const EXPLODE_HEIGHT = 0.35; // fully apart, the top layer rises this fraction of the die width
+const BACKGROUND = new THREE.Color(0x15161a);
+const DIM = 0.75; // how far unselected layers fade toward the background
+const CLICK_SLOP = 5; // px a press may move and still count as a click, not an orbit drag
 
 const canvas = document.getElementById("stage");
 const statusEl = document.getElementById("status");
@@ -15,13 +19,14 @@ const xSlider = document.getElementById("explode");
 const xOut = document.getElementById("xout");
 const toggle = document.getElementById("toggle");
 const readout = document.getElementById("readout");
+const card = document.getElementById("card");
 const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x15161a);
+scene.background = BACKGROUND;
 
 // Soft light from all around plus one "sun" so each face direction gets its own shade.
 scene.add(new THREE.HemisphereLight(0xffffff, 0x404048, 1.6));
@@ -40,6 +45,7 @@ let meshes = []; // bottom layer first, as in the file
 let explode = null; // springs, one per layer
 let gap = 0; // µm each layer step lifts when fully apart
 let zScale = 1;
+let selected = null; // index into meshes, or null
 
 // Render on demand: draw only while the camera or the springs are moving.
 let frame = 0;
@@ -118,26 +124,76 @@ function frameModel(box) {
 function buildLayerPanel() {
   layersEl.replaceChildren();
   // The file lists layers bottom first; show the top of the stack at the top.
-  for (const mesh of [...meshes].reverse()) {
+  for (let i = meshes.length - 1; i >= 0; i--) {
+    const mesh = meshes[i];
     const info = mesh.userData;
     const li = document.createElement("li");
+    li.dataset.index = String(i);
     li.innerHTML = `
-      <label title="GDS ${info.gds?.join("/") ?? "?"} · ${info.polygons ?? "?"} polygons">
+      <label title="Show or hide">
         <input type="checkbox" checked />
         <span class="swatch"></span>
-        <span class="name"></span>
-        <span class="z"></span>
-      </label>`;
-    li.querySelector(".swatch").style.background = `#${mesh.material.color.getHexString()}`;
+      </label>
+      <button type="button" class="name"></button>
+      <span class="z"></span>`;
+    li.querySelector(".swatch").style.background = `#${mesh.userData.baseColor.getHexString()}`;
     li.querySelector(".name").textContent = mesh.name;
     li.querySelector(".z").textContent = info.z_um != null ? `${info.z_um.toFixed(2)} µm` : "";
     li.querySelector("input").addEventListener("change", (e) => {
       mesh.visible = e.target.checked;
       requestRender();
     });
+    li.querySelector(".name").addEventListener("click", () => select(selected === i ? null : i));
     layersEl.append(li);
   }
 }
+
+// Selection: the chosen layer keeps its color and glows slightly; every other
+// layer fades toward the background, so the eye goes to the one that matters.
+function select(index, point = null) {
+  selected = index;
+  meshes.forEach((mesh, i) => {
+    const base = mesh.userData.baseColor;
+    const on = index === i;
+    mesh.material.color.copy(index == null || on ? base : base.clone().lerp(BACKGROUND, DIM));
+    mesh.material.emissive.copy(on ? base : BACKGROUND).multiplyScalar(on ? 0.25 : 0);
+  });
+  for (const li of layersEl.children) li.classList.toggle("on", Number(li.dataset.index) === index);
+  showCard(index == null ? null : meshes[index], point);
+  requestRender();
+}
+
+function showCard(mesh, point) {
+  card.hidden = !mesh;
+  if (!mesh) return;
+  const { title, rows } = describeLayer(mesh.userData, point);
+  card.querySelector(".title").textContent = title;
+  card.querySelector(".swatch").style.background = `#${mesh.userData.baseColor.getHexString()}`;
+  const dl = card.querySelector("dl");
+  dl.replaceChildren(...rows.flatMap(([label, value]) => {
+    const dt = document.createElement("dt");
+    const dd = document.createElement("dd");
+    dt.textContent = label;
+    dd.textContent = value;
+    return [dt, dd];
+  }));
+}
+
+// Click to identify. A press that moves more than a few pixels is an orbit
+// drag, not a click. Raycasting tests every triangle under the pointer ray, so
+// it runs on click only, never on hover.
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let downAt = null;
+canvas.addEventListener("pointerdown", (e) => { downAt = e.button === 0 ? [e.clientX, e.clientY] : null; });
+canvas.addEventListener("pointerup", (e) => {
+  if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > CLICK_SLOP) return;
+  const rect = canvas.getBoundingClientRect();
+  pointer.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+  const [hit] = raycaster.intersectObjects(meshes.filter((m) => m.visible), false);
+  select(hit ? meshes.indexOf(hit.object) : null, hit ? hit.point : null);
+});
 
 zSlider.addEventListener("input", () => {
   zScale = Number(zSlider.value);
@@ -168,10 +224,19 @@ function toggleApart() {
 toggle.addEventListener("click", toggleApart);
 
 window.addEventListener("keydown", (e) => {
-  // Space toggles unless a control has focus (a focused button or checkbox handles Space itself).
-  if (e.code !== "Space" || e.target.closest("input, button, select, textarea")) return;
-  e.preventDefault();
-  toggleApart();
+  if (e.key === "Escape") {
+    select(null);
+    return;
+  }
+  // The rest stay out of the way of focused controls (sliders use arrows, buttons use Space).
+  if (e.target.closest("input, button, select, textarea") || !meshes.length) return;
+  if (e.code === "Space") {
+    e.preventDefault();
+    toggleApart();
+  } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    e.preventDefault();
+    select(stepSelection(selected, e.key === "ArrowUp" ? +1 : -1, meshes.length));
+  }
 });
 
 new GLTFLoader().load(
@@ -179,6 +244,7 @@ new GLTFLoader().load(
   (gltf) => {
     chip.add(gltf.scene);
     gltf.scene.traverse((o) => { if (o.isMesh) meshes.push(o); });
+    for (const mesh of meshes) mesh.userData.baseColor = mesh.material.color.clone();
     buildLayerPanel();
 
     const box = new THREE.Box3().setFromObject(chip);

@@ -1,2 +1,11 @@
 # Reference checks: per-layer polygon counts vs. KLayout (headless, no GUI)
 klayout==0.30.13
+
+# Converter: GDS → glTF
+gdstk==1.0.2
+numpy==2.5.4
+mapbox_earcut==2.1.0
+trimesh==5.2.1
+
+# Tests
+pytest==9.2.0

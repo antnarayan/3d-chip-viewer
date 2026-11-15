@@ -5,10 +5,8 @@ import gdstk
 import numpy as np
 import pytest
 
+from conftest import SPM_GDS, needs_spm
 from gds2glb.load import load_flat
-
-REPO = Path(__file__).resolve().parents[2]
-SPM_GDS = REPO / "designs" / "spm" / "spm.gds"
 
 MET1 = (68, 20)
 MET2 = (69, 20)
@@ -86,31 +84,11 @@ def test_multiple_top_cells_need_a_name(tmp_path: Path):
         load_flat(path, top="C")
 
 
-def klayout_counts(path: Path) -> dict[tuple[int, int], int]:
-    """Flattened boxes + polygons + paths per layer, as KLayout counts them."""
-    import klayout.db as db
-
-    layout = db.Layout()
-    layout.read(str(path))
-    counts = {}
-    for index in layout.layer_indexes():
-        info = layout.get_info(index)
-        n = 0
-        it = layout.top_cell().begin_shapes_rec(index)
-        while not it.at_end():
-            shape = it.shape()
-            n += shape.is_box() or shape.is_polygon() or shape.is_path()
-            it.next()
-        if n:
-            counts[(info.layer, info.datatype)] = n
-    return counts
-
-
-@pytest.mark.skipif(not SPM_GDS.exists(), reason="designs/spm/spm.gds not present")
-def test_spm_matches_klayout():
+@needs_spm
+def test_spm_matches_klayout(spm_klayout_counts):
     flat = load_flat(SPM_GDS)
     assert flat.top == "spm"
-    assert flat.counts() == klayout_counts(SPM_GDS)
+    assert flat.counts() == spm_klayout_counts
 
     allpoints = np.concatenate([p for polys in flat.polygons.values() for p in polys])
     assert bbox(allpoints) == pytest.approx((0, 0, 96.6, 107.32))  # die size from LibreLane

@@ -39,9 +39,34 @@ layermap.json  GDS layer/datatype → name, z, thickness, color
 2. Build and check `layermap.json`
 3. Converter: load → flatten → collect polygons per layer → triangulate + extrude → merge → `.glb`
 4. Viewer: load `.glb`, orbit controls, layer panel, exploded-view slider, z-exaggeration, click-to-identify
+   - Exploded view on staggered springs: one spring per layer, ~35 ms apart, top layer leaves first,
+     closes in reverse; on a mid-way reversal reschedule only layers still moving. Slider sets the target.
+   - Selection tones: hovered/selected layer is the one lit accent, all others step down a tone.
+   - Framed card: title, hint, live readout (e.g. `met1 · 4,112 shapes · z 1.376 µm · 0.36 µm`) read from
+     `layermap.json` + converter metadata; readout reports where parts are, not where they're headed.
+   - Calm time-based motion: clamp dt to 1/30 s, exponential follow / critically damped settle for
+     camera presets and z-exaggeration. Render on demand: stop the loop when settled or offscreen.
+   - Keyboard + a11y: arrows walk the layer stack, Space explodes/closes, Esc clears selection,
+     `aria-live` announces phase changes only. Respect `prefers-reduced-motion`.
+   - Light and dark themes from color tokens. Isometric orthographic preset (45° az, 30° el) with
+     edge outlines. True-scale µm ruler on the die edge and a scale bar.
 5. Scale: InstancedMesh for standard cells, windowing/tiling, LOD, Web Workers
+   - Half-rate rendering when frames exceed ~14 ms, motion stays time-based.
 6. Extras: DEF net highlighting, IR-drop / congestion overlays, clock tree view
+   - Clock tree: a pulse travels the real DEF routes from root to flip-flops, timed from the SDF.
+   - Overlays in world space at the true layer z; no popping (envelopes with attack/decay,
+     crossfades), every field fades to zero before any edge.
+   - Net click: burst envelope flash that settles into the highlight.
+   - Idle tour: after ~1.4 s idle, orbit → explode → walk met1–met5 → nets; pause on input,
+     resume ~3.6 s after. Doubles as the demo/GIF.
 7. Ship: GitHub Pages demo, README with GIF
+   - Printable A4 sheets: poster with numbered layers, cross-section drawing with the stack table.
+   - Headless-Chrome visual checks: screenshots at fixed poses, slowed contact sheets of the
+     explode to catch popping and z-fighting.
+
+Motion, UI and overlay ideas above come from Anatomy (github.com/wheresryan22/anatomy, MIT).
+Take ideas and small helpers (spring/settle/burst) with attribution, not its SVG kit or 3D engine:
+Three.js's depth buffer replaces its painter's order at our shape counts.
 
 ## How to work with me
 - Do one well-scoped step at a time. Confirm with me before installing anything or making big structural changes.

@@ -7,7 +7,8 @@
     "model": "cd ../converter && ../.venv/bin/python -m gds2glb ../designs/spm/spm.gds ../viewer/public/models/spm.glb",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test"
   },
   "dependencies": {
     "three": "0.187.0"

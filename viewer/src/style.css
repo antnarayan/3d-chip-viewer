@@ -44,7 +44,26 @@ h1 span { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 6
 h2 { margin: 16px 0 6px; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 #status { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
 
-.slider { display: block; }
+.slider { display: block; margin-bottom: 10px; }
+
+#toggle {
+  width: 100%;
+  padding: 6px 10px;
+  font: inherit;
+  color: var(--text);
+  background: #26272d;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#toggle:hover { background: #2e2f36; }
+#toggle[aria-pressed="true"] { border-color: var(--muted); }
+#toggle:focus-visible { outline: 1px solid var(--muted); outline-offset: 3px; }
+kbd { font: 11px ui-monospace, monospace; color: var(--muted); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; }
+#readout { margin: 8px 0 0; min-height: 1em; color: var(--muted); font-size: 12px; }
 .slider span { display: flex; justify-content: space-between; margin-bottom: 4px; }
 .slider output { color: var(--muted); font-variant-numeric: tabular-nums; }
 .slider input { width: 100%; }

@@ -1,0 +1,9 @@
+[project]
+name = "gds2glb"
+version = "0.1.0"
+description = "Convert GDSII chip layouts into per-layer 3D meshes (.glb)"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

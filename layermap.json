@@ -6,12 +6,12 @@
     "stack": "SkyWater SKY130 docs, metal stack diagram: https://skywater-pdk.readthedocs.io/en/main/_images/metal_stack.svg",
     "magic": "sky130A/libs.tech/magic/sky130A.tech, 'height' section (PDK 8afc8346a57fe1ab7934ba5a6056ea8b43078e71)",
     "gds": "SkyWater SKY130 docs, GDS layers: https://skywater-pdk.readthedocs.io/en/main/rules/layers.html",
-    "colors": "sky130A/libs.tech/klayout/tech/sky130A.lyp (KLayout fill colors)"
+    "colors": "sky130A/libs.tech/klayout/tech/sky130A.lyp (KLayout fill colors), except tap and met4, changed so no two layers share a color"
   },
   "layers": [
     { "name": "nwell",  "gds": [64, 20], "kind": "well",    "z": 0.0,    "thickness": 0.2062, "color": "#00cc66", "source": "magic" },
     { "name": "diff",   "gds": [65, 20], "kind": "diff",    "z": 0.2062, "thickness": 0.12,   "color": "#00ff00", "source": "magic" },
-    { "name": "tap",    "gds": [65, 44], "kind": "diff",    "z": 0.2062, "thickness": 0.12,   "color": "#d9cc00", "source": "magic" },
+    { "name": "tap",    "gds": [65, 44], "kind": "diff",    "z": 0.2062, "thickness": 0.12,   "color": "#7f9f2f", "source": "magic" },
     { "name": "poly",   "gds": [66, 20], "kind": "poly",    "z": 0.3262, "thickness": 0.18,   "color": "#ff0000", "source": "stack+magic" },
     { "name": "licon1", "gds": [66, 44], "kind": "contact", "z": 0.3262, "thickness": 0.61,   "color": "#ffffcc", "source": "magic" },
     { "name": "li1",    "gds": [67, 20], "kind": "metal",   "z": 0.9361, "thickness": 0.10,   "color": "#ffe6bf", "source": "stack+magic" },
@@ -22,7 +22,7 @@
     { "name": "via2",   "gds": [69, 44], "kind": "via",     "z": 2.3661, "thickness": 0.42,   "color": "#ff8000", "source": "stack+magic" },
     { "name": "met3",   "gds": [70, 20], "kind": "metal",   "z": 2.7861, "thickness": 0.845,  "color": "#00ffff", "source": "stack+magic" },
     { "name": "via3",   "gds": [70, 44], "kind": "via",     "z": 3.6311, "thickness": 0.39,   "color": "#268c6b", "source": "stack+magic" },
-    { "name": "met4",   "gds": [71, 20], "kind": "metal",   "z": 4.0211, "thickness": 0.845,  "color": "#5e00e6", "source": "stack+magic" },
+    { "name": "met4",   "gds": [71, 20], "kind": "metal",   "z": 4.0211, "thickness": 0.845,  "color": "#b58cff", "source": "stack+magic" },
     { "name": "via4",   "gds": [71, 44], "kind": "via",     "z": 4.8661, "thickness": 0.505,  "color": "#ffff00", "source": "stack+magic" },
     { "name": "met5",   "gds": [72, 20], "kind": "metal",   "z": 5.3711, "thickness": 1.26,   "color": "#d9cc00", "source": "stack+magic" }
   ],

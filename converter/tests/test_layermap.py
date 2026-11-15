@@ -75,3 +75,8 @@ def test_rejects_layer_both_mapped_and_ignored(tmp_path: Path):
     data["ignore"].append({"gds": [68, 20], "name": "oops"})
     with pytest.raises(ValueError, match="duplicate GDS layer"):
         load_layermap(write(tmp_path, data))
+
+
+def test_repo_layermap_colors_are_distinct():
+    colors = [layer.color.lower() for layer in load_layermap(LAYERMAP).layers]
+    assert len(set(colors)) == len(colors)
